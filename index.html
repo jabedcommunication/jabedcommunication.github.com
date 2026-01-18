@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>All-in-One Image & PDF Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Cropper -->
+<link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.css">
+<script src="https://unpkg.com/cropperjs/dist/cropper.js"></script>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+/* BODY */
+body{font-family:Arial, sans-serif;background:#f4f6f8;padding:10px;margin:0}
+.box{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+input,select,button{width:100%;padding:10px;margin-top:8px;box-sizing:border-box}
+button{background:#0d6efd;color:#fff;border:none;border-radius:6px;cursor:pointer}
+img{max-width:100%;margin-top:10px;border-radius:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+hr{margin:30px 0}
+
+/* HEADER */
+.header-container{
+  text-align:center;
+  margin-bottom:15px;
+  padding:20px;
+  border-radius:12px;
+  background: linear-gradient(135deg, #0d6efd, #198754);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  color:white;
+}
+.header-container img{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:10px;
+  box-shadow:0 6px 15px rgba(0,0,0,0.3);
+}
+.header-container h2{margin-top:15px;font-size:24px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+.header-container h3{margin-top:10px;font-weight:bold;font-size:20px;}
+
+/* NAVIGATION */
+.nav-container{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#0d6efd;
+  padding:10px 20px;
+  border-radius:10px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.nav-links{list-style:none;display:flex;gap:15px;padding:0;margin:0;flex-wrap:wrap;}
+.nav-links li a{color:white;text-decoration:none;font-weight:bold;transition:0.3s;}
+.nav-links li a:hover{text-decoration:underline;}
+.social-icons{display:flex;gap:10px;flex-wrap:wrap;}
+.social-icons a{color:white;text-decoration:none;font-size:20px;transition:0.3s;}
+.social-icons a:hover{transform:scale(1.2);}
+
+/* QUICK LINKS */
+.quick-links{margin-bottom:30px;}
+.quick-links h3{font-size:20px;color:#0d6efd;margin-bottom:10px;cursor:pointer;}
+.quick-links ul{list-style:none;padding:0;display:block;}
+.quick-links ul li{margin-bottom:5px;}
+.quick-links ul li a{text-decoration:none;color:#0d6efd;font-weight:bold;}
+.quick-links ul li a:hover{text-decoration:underline;}
+
+/* Responsive */
+@media(max-width:768px){
+  .header-container h2{font-size:22px;}
+  .header-container h3{font-size:18px;}
+  .row{grid-template-columns:1fr;}
+  .nav-container{flex-direction:column;align-items:flex-start;gap:10px;}
+}
+@media(max-width:480px){
+  .header-container h2{font-size:20px;}
+  .header-container h3{font-size:16px;}
+  .social-icons{justify-content:flex-start;}
+  .nav-links{flex-direction:column;gap:8px;}
+  .quick-links h3{font-size:18px;}
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+
+  <!-- HEADER -->
+  <div class="header-container">
+    <img src="header.jpg" alt="Javed Communication">
+    <h2>WELCOME TO JAVED COMMUNICATION WORLD</h2>
+    <h3>JAVED COMMUNICATION WORLD-এ আপনাকে স্বাগতম</h3>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav-container">
+    <ul class="nav-links">
+      <li><a href="#imageTools">Image Tools</a></li>
+      <li><a href="#compressor">Compressor</a></li>
+      <li><a href="#pdfTools">PDF Tools</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="social-icons">
+      <a href="https://facebook.com" target="_blank">📘</a>
+      <a href="https://twitter.com" target="_blank">🐦</a>
+      <a href="https://instagram.com" target="_blank">📸</a>
+      <a href="https://linkedin.com" target="_blank">💼</a>
+    </div>
+  </nav>
+
+  <!-- QUICK LINKS -->
+  <div class="quick-links" id="quickLinks">
+    <h3 onclick="toggleQuickLinks()">Quick Links ⬇️</h3>
+    <ul id="quickLinksList">
+      <li><a href="#imgInput">Image Crop / Resize / Compress</a></li>
+      <li><a href="#compressInput">Simple Image Compressor</a></li>
+      <li><a href="#multiImg">Multi Image to PDF</a></li>
+      <li><a href="#pdfInput">PDF to Images</a></li>
+    </ul>
+  </div>
+
+  <!-- IMAGE TOOLS -->
+  <h2 id="imageTools">🖼️ Image Crop / Resize / Compress</h2>
+  <input type="file" id="imgInput" accept="image/*">
+  <select id="preset">
+    <option value="">Custom Size</option>
+    <option value="1280x720">HD</option>
+    <option value="1920x1080">Full HD</option>
+    <option value="2560x1440">2K</option>
+    <option value="3840x2160">4K</option>
+  </select>
+  <div class="row">
+    <input type="number" id="w" placeholder="Width">
+    <input type="number" id="h" placeholder="Height">
+  </div>
+  <input type="number" id="q" value="0.8" step="0.1" min="0.1" max="1">
+  <button onclick="processImage()">Process Image</button>
+  <img id="preview">
+  <a id="download" download="image.jpg"></a>
+
+  <hr>
+
+  <h2 id="compressor">🗜️ Simple Image Compressor (No Resize)</h2>
+  <p>শুধু ইমেজ আপলোড করুন, অটো কম্প্রেস হবে</p>
+  <input type="file" id="compressInput" accept="image/*">
+  <button onclick="simpleCompress()">Compress Image</button>
+  <img id="compressPreview">
+  <a id="compressDownload" download="compressed-image.jpg"></a>
+
+  <hr>
+
+  <h2 id="pdfTools">🖼️➡️📄 Multi Image to PDF</h2>
+  <input type="file" id="multiImg" multiple accept="image/*">
+  <button onclick="multiImgPDF()">Create PDF</button>
+
+  <hr>
+
+  <h2>📄➡️🖼️ PDF to Images</h2>
+  <input type="file" id="pdfInput" accept="application/pdf">
+  <button onclick="pdfToImages()">Convert PDF</button>
+
+</div>
+
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+/* Toggle Quick Links on Mobile */
+function toggleQuickLinks(){
+  const list=document.getElementById("quickLinksList");
+  list.style.display = list.style.display === "none" ? "block" : "none";
+}
+
+/* IMAGE CROPPER */
+let cropper;
+const imgInput=document.getElementById("imgInput");
+const preview=document.getElementById("preview");
+
+imgInput.onchange=e=>{
+  const file=e.target.files[0];
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    preview.src=ev.target.result;
+    if(cropper) cropper.destroy();
+    cropper=new Cropper(preview);
+  };
+  reader.readAsDataURL(file);
+};
+
+preset.onchange=e=>{
+  if(!e.target.value)return;
+  [w.value,h.value]=e.target.value.split("x");
+};
+
+function processImage(){
+  const canvas=cropper.getCroppedCanvas({width:w.value||null,height:h.value||null});
+  const data=canvas.toDataURL("image/jpeg",q.value);
+  preview.src=data;
+  download.href=data;
+  download.innerText="Download Image";
+}
+
+/* SIMPLE IMAGE COMPRESS */
+function simpleCompress(){
+  const file=compressInput.files[0];
+  if(!file) return alert("ইমেজ সিলেক্ট করুন");
+  const reader=new FileReader();
+  const img=new Image();
+  reader.onload=e=>img.src=e.target.result;
+  reader.readAsDataURL(file);
+  img.onload=()=>{
+    const c=document.getElementById("canvas");
+    c.width=img.width;
+    c.height=img.height;
+    c.getContext("2d").drawImage(img,0,0);
+    const compressed=c.toDataURL("image/jpeg",0.6);
+    compressPreview.src=compressed;
+    compressDownload.href=compressed;
+    compressDownload.innerText="Download Compressed Image";
+  };
+}
+
+/* MULTI IMAGE TO PDF */
+function multiImgPDF(){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  let files=multiImg.files,i=0;
+  const r=new FileReader();
+  r.onload=e=>{
+    if(i>0)pdf.addPage();
+    pdf.addImage(e.target.result,"JPEG",10,10,180,160);
+    i++;
+    if(i<files.length)r.readAsDataURL(files[i]);
+    else pdf.save("images.pdf");
+  };
+  r.readAsDataURL(files[i]);
+}
+
+/* PDF TO IMAGES */
+async function pdfToImages(){
+  const file=pdfInput.files[0];
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument(buf).promise;
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const v=page.getViewport({scale:2});
+    const c=document.getElementById("canvas");
+    c.width=v.width;c.height=v.height;
+    await page.render({canvasContext:c.getContext("2d"),viewport:v}).promise;
+    const img=document.createElement("img");
+    img.src=c.toDataURL();
+    document.querySelector(".box").appendChild(img);
+  }
+}
+</script>
+</body>
+</html>
